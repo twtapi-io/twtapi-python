@@ -1,8 +1,8 @@
 # twtapi — official Python client
 
-[![PyPI](https://img.shields.io/pypi/v/twtapi.svg)](https://pypi.org/project/twtapi/)
-[![Python](https://img.shields.io/pypi/pyversions/twtapi.svg)](https://pypi.org/project/twtapi/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/twtapi?color=blue)](https://pypi.org/project/twtapi/)
+[![Python](https://img.shields.io/pypi/pyversions/twtapi)](https://pypi.org/project/twtapi/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 Programmatic access to 𝕏 (Twitter) data and actions, built on the
 [twtapi.io](https://twtapi.io) HTTP API. Sync + async, typed errors,
