@@ -9,7 +9,7 @@ The login flow is multi-step. `start` returns one of:
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._transport import Transport
@@ -26,7 +26,7 @@ class Auth:
         username: str,
         password: str,
         *,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
     ) -> dict[str, Any]:
         """Start a login. `POST /login/start`"""
         payload: dict[str, Any] = {"username": username, "password": password}
@@ -47,7 +47,7 @@ class Auth:
         challenge_token: str,
         code: str,
         *,
-        alternate_id: Optional[str] = None,
+        alternate_id: str | None = None,
     ) -> dict[str, Any]:
         """`POST /login/email_code`."""
         payload: dict[str, Any] = {"state": challenge_token, "code": code}
@@ -87,7 +87,7 @@ class AsyncAuth:
         username: str,
         password: str,
         *,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"username": username, "password": password}
         if proxy:
@@ -106,7 +106,7 @@ class AsyncAuth:
         challenge_token: str,
         code: str,
         *,
-        alternate_id: Optional[str] = None,
+        alternate_id: str | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"state": challenge_token, "code": code}
         if alternate_id is not None:

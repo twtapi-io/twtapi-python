@@ -15,7 +15,7 @@ react to a specific failure mode.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class TwtAPIError(Exception):
@@ -25,8 +25,8 @@ class TwtAPIError(Exception):
         self,
         message: str,
         *,
-        status: Optional[int] = None,
-        error: Optional[str] = None,
+        status: int | None = None,
+        error: str | None = None,
         body: Any = None,
     ) -> None:
         super().__init__(message)
@@ -80,8 +80,8 @@ class RateLimitError(TwtAPIError):
     def __init__(
         self,
         *args: Any,
-        retry_after: Optional[float] = None,
-        scope: Optional[str] = None,
+        retry_after: float | None = None,
+        scope: str | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
@@ -128,7 +128,7 @@ def from_response(
     *,
     status: int,
     body: Any,
-    retry_after_header: Optional[float] = None,
+    retry_after_header: float | None = None,
 ) -> TwtAPIError:
     """Build the right exception subclass from an HTTP status + JSON body.
 
@@ -164,13 +164,13 @@ def from_response(
     return cls(message, status=status, error=reason, body=body)
 
 
-def _fallback_message(status: int, reason: Optional[str]) -> str:
+def _fallback_message(status: int, reason: str | None) -> str:
     if reason:
         return f"HTTP {status}: {reason}"
     return f"HTTP {status}"
 
 
-def _coerce_float(value: Any) -> Optional[float]:
+def _coerce_float(value: Any) -> float | None:
     if value is None:
         return None
     try:

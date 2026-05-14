@@ -12,7 +12,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Mapping, Optional, Union
+from collections.abc import Mapping
+from typing import Any
 
 import httpx
 
@@ -28,7 +29,7 @@ _NEW_CT0_HEADER = "X-Twitter-New-Ct0"
 _RETRY_STATUSES = {408, 429, 500, 502, 503}
 _NON_IDEMPOTENT_PATHS = frozenset({"/tweet", "/comment"})
 
-JSONBody = Union[Mapping[str, Any], list[Any], None]
+JSONBody = Mapping[str, Any] | list[Any] | None
 
 
 class Transport:
@@ -39,13 +40,13 @@ class Transport:
         *,
         api_key: str,
         base_url: str = DEFAULT_BASE_URL,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         retries: int = 2,
-        cookies: Optional[CookieState] = None,
-        logger: Optional[logging.Logger] = None,
+        cookies: CookieState | None = None,
+        logger: logging.Logger | None = None,
         user_agent: str = DEFAULT_USER_AGENT,
-        http_client: Optional[httpx.Client] = None,
+        http_client: httpx.Client | None = None,
     ) -> None:
         if not api_key:
             raise ValueError("api_key is required")
@@ -57,7 +58,7 @@ class Transport:
         self._cookies = cookies or CookieState()
         self._logger = logger
         self._user_agent = user_agent
-        self._last_rate_limit: Optional[RateLimit] = None
+        self._last_rate_limit: RateLimit | None = None
 
         self._owns_client = http_client is None
         self._client = http_client or httpx.Client(
@@ -77,7 +78,7 @@ class Transport:
         return self._base_url
 
     @property
-    def last_rate_limit(self) -> Optional[RateLimit]:
+    def last_rate_limit(self) -> RateLimit | None:
         return self._last_rate_limit
 
     # ----------------------------------------------------------- public API
@@ -87,12 +88,12 @@ class Transport:
         method: str,
         path: str,
         *,
-        params: Optional[Mapping[str, Any]] = None,
+        params: Mapping[str, Any] | None = None,
         json: JSONBody = None,
-        data: Optional[Mapping[str, Any]] = None,
-        files: Optional[Mapping[str, Any]] = None,
+        data: Mapping[str, Any] | None = None,
+        files: Mapping[str, Any] | None = None,
         send_cookies: bool = False,
-        extra_headers: Optional[Mapping[str, str]] = None,
+        extra_headers: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
         """Issue one HTTP request and return parsed JSON.
 
@@ -158,7 +159,7 @@ class Transport:
         self,
         *,
         send_cookies: bool,
-        extra: Optional[Mapping[str, str]],
+        extra: Mapping[str, str] | None,
     ) -> dict[str, str]:
         headers: dict[str, str] = {"X-API-Key": self._api_key}
         if self._proxy:
@@ -250,7 +251,7 @@ def _is_retryable(method: str, path: str) -> bool:
 
 def _backoff(attempt: int) -> float:
     """Exponential backoff (0.5, 1, 2, 4, 8) capped at 8s."""
-    return min(0.5 * (2 ** (attempt - 1)), 8.0)
+    return float(min(0.5 * (2 ** (attempt - 1)), 8.0))
 
 
 def _drop_none(params: Mapping[str, Any]) -> dict[str, Any]:
@@ -265,7 +266,7 @@ def _safe_json(response: httpx.Response) -> Any:
         return {"error": "invalid_json", "message": text[:500]} if text else {}
 
 
-def _parse_retry_after(value: Optional[str]) -> Optional[float]:
+def _parse_retry_after(value: str | None) -> float | None:
     if not value:
         return None
     try:
@@ -274,7 +275,7 @@ def _parse_retry_after(value: Optional[str]) -> Optional[float]:
         return None
 
 
-def _coerce_float(value: Any) -> Optional[float]:
+def _coerce_float(value: Any) -> float | None:
     if value is None:
         return None
     try:

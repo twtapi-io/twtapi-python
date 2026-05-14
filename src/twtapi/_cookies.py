@@ -7,8 +7,9 @@ auto-rotates `ct0` when the server returns a fresh value in the
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from contextlib import suppress
 from threading import Lock
-from typing import Callable, Optional
 
 CookieRotatedCallback = Callable[[str], None]
 
@@ -18,9 +19,9 @@ class CookieState:
 
     def __init__(
         self,
-        auth_token: Optional[str] = None,
-        ct0: Optional[str] = None,
-        on_ct0_rotated: Optional[CookieRotatedCallback] = None,
+        auth_token: str | None = None,
+        ct0: str | None = None,
+        on_ct0_rotated: CookieRotatedCallback | None = None,
     ) -> None:
         self._lock = Lock()
         self._auth_token = auth_token
@@ -28,25 +29,25 @@ class CookieState:
         self._on_rotated = on_ct0_rotated
 
     @property
-    def auth_token(self) -> Optional[str]:
+    def auth_token(self) -> str | None:
         with self._lock:
             return self._auth_token
 
     @property
-    def ct0(self) -> Optional[str]:
+    def ct0(self) -> str | None:
         with self._lock:
             return self._ct0
 
-    def set(self, auth_token: Optional[str], ct0: Optional[str]) -> None:
+    def set(self, auth_token: str | None, ct0: str | None) -> None:
         with self._lock:
             self._auth_token = auth_token
             self._ct0 = ct0
 
-    def set_on_rotated(self, callback: Optional[CookieRotatedCallback]) -> None:
+    def set_on_rotated(self, callback: CookieRotatedCallback | None) -> None:
         with self._lock:
             self._on_rotated = callback
 
-    def snapshot(self) -> tuple[Optional[str], Optional[str]]:
+    def snapshot(self) -> tuple[str | None, str | None]:
         with self._lock:
             return self._auth_token, self._ct0
 
@@ -61,8 +62,7 @@ class CookieState:
             self._ct0 = new_ct0
             cb = self._on_rotated
         if cb is not None:
-            try:
+            # User callback must not break the SDK
+            with suppress(Exception):
                 cb(new_ct0)
-            except Exception:  # noqa: BLE001 — user callback must not break the SDK
-                pass
         return True

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._cookies import CookieState
@@ -25,7 +25,7 @@ class Account:
     def change_password(
         self,
         current: str,
-        new: Optional[str] = None,
+        new: str | None = None,
     ) -> dict[str, Any]:
         """`POST /change_password`. Requires engagement cookies.
 
@@ -50,7 +50,7 @@ class AsyncAccount:
     async def change_password(
         self,
         current: str,
-        new: Optional[str] = None,
+        new: str | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"current_password": current}
         if new:

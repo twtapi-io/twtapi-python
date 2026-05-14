@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from types import TracebackType
-from typing import Optional, Type
 
 from twtapi._cookies import CookieRotatedCallback, CookieState
 from twtapi._transport import DEFAULT_BASE_URL, DEFAULT_TIMEOUT, Transport
@@ -38,13 +37,13 @@ class TwtAPI:
         api_key: str,
         *,
         base_url: str = DEFAULT_BASE_URL,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         retries: int = 2,
-        logger: Optional[logging.Logger] = None,
-        on_ct0_rotated: Optional[CookieRotatedCallback] = None,
-        auth_token: Optional[str] = None,
-        ct0: Optional[str] = None,
+        logger: logging.Logger | None = None,
+        on_ct0_rotated: CookieRotatedCallback | None = None,
+        auth_token: str | None = None,
+        ct0: str | None = None,
     ) -> None:
         self._cookies = CookieState(
             auth_token=auth_token, ct0=ct0, on_ct0_rotated=on_ct0_rotated
@@ -74,7 +73,7 @@ class TwtAPI:
         return self._cookies
 
     @property
-    def last_rate_limit(self) -> Optional[RateLimit]:
+    def last_rate_limit(self) -> RateLimit | None:
         """Snapshot of `X-RateLimit-*` headers from the most recent response.
         `None` until the first successful call."""
         return self._transport.last_rate_limit
@@ -83,7 +82,7 @@ class TwtAPI:
         """Set the engagement cookies attached to every authenticated call."""
         self._cookies.set(auth_token, ct0)
 
-    def on_ct0_rotated(self, callback: Optional[CookieRotatedCallback]) -> None:
+    def on_ct0_rotated(self, callback: CookieRotatedCallback | None) -> None:
         """Register a callback fired whenever the server returns a fresh ct0."""
         self._cookies.set_on_rotated(callback)
 
@@ -92,13 +91,13 @@ class TwtAPI:
     def close(self) -> None:
         self._transport.close()
 
-    def __enter__(self) -> "TwtAPI":
+    def __enter__(self) -> TwtAPI:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc: Optional[BaseException],
-        tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
     ) -> None:
         self.close()

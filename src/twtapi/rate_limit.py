@@ -11,20 +11,21 @@ the first successful response.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
 class RateLimit:
     """Latest rate-limit snapshot from a response."""
 
-    limit: Optional[int]
-    remaining: Optional[int]
-    reset: Optional[int]
+    limit: int | None
+    remaining: int | None
+    reset: int | None
 
     @classmethod
-    def from_headers(cls, headers: Mapping[str, Any]) -> Optional["RateLimit"]:
+    def from_headers(cls, headers: Mapping[str, Any]) -> RateLimit | None:
         limit = _int(headers.get("X-RateLimit-Limit"))
         remaining = _int(headers.get("X-RateLimit-Remaining"))
         reset = _int(headers.get("X-RateLimit-Reset"))
@@ -33,7 +34,7 @@ class RateLimit:
         return cls(limit=limit, remaining=remaining, reset=reset)
 
 
-def _int(value: Any) -> Optional[int]:
+def _int(value: Any) -> int | None:
     if value is None:
         return None
     try:

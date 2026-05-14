@@ -13,7 +13,8 @@ each annotated with a `role` field.
 
 from __future__ import annotations
 
-from typing import Any, AsyncIterator, Iterator, Optional
+from collections.abc import AsyncIterator, Iterator
+from typing import Any
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._transport import Transport
@@ -51,7 +52,7 @@ class Communities:
         self,
         community_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """One page of community members. `GET /community_members`.
 
@@ -67,8 +68,8 @@ class Communities:
         self,
         community_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         """Flat stream of members across all pages and roles.
 
@@ -108,7 +109,7 @@ class Communities:
         self,
         community_id: str,
         *,
-        answer: Optional[str] = None,
+        answer: str | None = None,
     ) -> dict[str, Any]:
         """`POST /community_request_join`. For approval-gated communities.
 
@@ -149,7 +150,7 @@ class AsyncCommunities:
         self,
         community_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -161,8 +162,8 @@ class AsyncCommunities:
         self,
         community_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         yielded = 0
         async for page in aiter_pages(
@@ -190,7 +191,7 @@ class AsyncCommunities:
         self,
         community_id: str,
         *,
-        answer: Optional[str] = None,
+        answer: str | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"community_id": community_id}
         if answer is not None:

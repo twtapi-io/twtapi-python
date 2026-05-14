@@ -19,27 +19,23 @@ flattens them into the individual items. Both honour `max_pages` and
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from typing import (
     Any,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Iterator,
-    Optional,
 )
 
-PageFetcher = Callable[[Optional[str]], dict[str, Any]]
-AsyncPageFetcher = Callable[[Optional[str]], Awaitable[dict[str, Any]]]
+PageFetcher = Callable[[str | None], dict[str, Any]]
+AsyncPageFetcher = Callable[[str | None], Awaitable[dict[str, Any]]]
 
 
 def iter_pages(
     fetch: PageFetcher,
     *,
     cursor_field: str = "cursor_bottom",
-    max_pages: Optional[int] = None,
+    max_pages: int | None = None,
 ) -> Iterator[dict[str, Any]]:
     """Yield raw page dicts until the API stops returning a cursor."""
-    cursor: Optional[str] = None
+    cursor: str | None = None
     seen = 0
     while True:
         page = fetch(cursor)
@@ -58,8 +54,8 @@ def iter_items(
     *,
     items_field: str,
     cursor_field: str = "cursor_bottom",
-    max_pages: Optional[int] = None,
-    max_items: Optional[int] = None,
+    max_pages: int | None = None,
+    max_items: int | None = None,
 ) -> Iterator[Any]:
     """Yield individual items across all pages."""
     yielded = 0
@@ -75,9 +71,9 @@ async def aiter_pages(
     fetch: AsyncPageFetcher,
     *,
     cursor_field: str = "cursor_bottom",
-    max_pages: Optional[int] = None,
+    max_pages: int | None = None,
 ) -> AsyncIterator[dict[str, Any]]:
-    cursor: Optional[str] = None
+    cursor: str | None = None
     seen = 0
     while True:
         page = await fetch(cursor)
@@ -96,8 +92,8 @@ async def aiter_items(
     *,
     items_field: str,
     cursor_field: str = "cursor_bottom",
-    max_pages: Optional[int] = None,
-    max_items: Optional[int] = None,
+    max_pages: int | None = None,
+    max_items: int | None = None,
 ) -> AsyncIterator[Any]:
     yielded = 0
     async for page in aiter_pages(fetch, cursor_field=cursor_field, max_pages=max_pages):

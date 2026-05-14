@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, AsyncIterator, Iterator, Optional
+from collections.abc import AsyncIterator, Iterator
+from typing import Any
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._transport import Transport
@@ -35,8 +36,8 @@ class Users:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """One page of followers. `GET /followers`
 
@@ -52,9 +53,9 @@ class Users:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         """Iterate every follower across pages."""
         return iter_items(
@@ -68,8 +69,8 @@ class Users:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """One page of a user's tweets. `GET /user_tweets`
 
@@ -85,9 +86,9 @@ class Users:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         return iter_items(
             lambda cur: self.tweets(user_id, count=count, cursor=cur),
@@ -122,8 +123,8 @@ class AsyncUsers:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -135,9 +136,9 @@ class AsyncUsers:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self.followers(user_id, count=count, cursor=cur),
@@ -150,8 +151,8 @@ class AsyncUsers:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -163,9 +164,9 @@ class AsyncUsers:
         self,
         user_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self.tweets(user_id, count=count, cursor=cur),

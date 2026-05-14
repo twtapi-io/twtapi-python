@@ -6,7 +6,14 @@ import httpx
 import pytest
 import respx
 
-from twtapi import RateLimit, RateLimitError, TwtAPI
+from twtapi import (
+    InternalError,
+    RateLimit,
+    RateLimitError,
+    ServiceUnavailableError,
+    TwtAPI,
+    UpstreamError,
+)
 
 
 @respx.mock
@@ -79,7 +86,7 @@ def test_post_tweet_never_retries_on_5xx() -> None:
     route = respx.post("https://api.twtapi.io/tweet").mock(
         return_value=httpx.Response(502, json={"error": "upstream_unavailable", "message": "x"})
     )
-    with pytest.raises(Exception):
+    with pytest.raises(UpstreamError):
         client.tweets.create("hello")
     assert route.call_count == 1
 
@@ -90,7 +97,7 @@ def test_post_comment_never_retries_on_5xx() -> None:
     route = respx.post("https://api.twtapi.io/comment").mock(
         return_value=httpx.Response(500, json={"error": "internal", "message": "x"})
     )
-    with pytest.raises(Exception):
+    with pytest.raises(InternalError):
         client.tweets.comment("123", "hi")
     assert route.call_count == 1
 
@@ -115,7 +122,7 @@ def test_retries_zero_disables_retry() -> None:
     route = respx.get("https://api.twtapi.io/user").mock(
         return_value=httpx.Response(503, json={"error": "outage", "message": "down"})
     )
-    with pytest.raises(Exception):
+    with pytest.raises(ServiceUnavailableError):
         client.users.get("elonmusk")
     assert route.call_count == 1
 

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, AsyncIterator, Iterator, Literal, Optional
+from collections.abc import AsyncIterator, Iterator
+from typing import Any, Literal
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._transport import Transport
@@ -13,9 +14,9 @@ SearchProduct = Literal["Top", "Latest", "People", "Photos", "Videos"]
 
 def _params(
     q: str,
-    product: Optional[SearchProduct],
-    count: Optional[int],
-    cursor: Optional[str],
+    product: SearchProduct | None,
+    count: int | None,
+    cursor: str | None,
 ) -> dict[str, Any]:
     return {"q": q, "product": product, "count": count, "cursor": cursor}
 
@@ -28,9 +29,9 @@ class Search:
         self,
         q: str,
         *,
-        product: Optional[SearchProduct] = None,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        product: SearchProduct | None = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """One page of search results.
 
@@ -42,10 +43,10 @@ class Search:
         self,
         q: str,
         *,
-        product: Optional[SearchProduct] = None,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        product: SearchProduct | None = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         return iter_items(
             lambda cur: self(q, product=product, count=count, cursor=cur),
@@ -63,9 +64,9 @@ class AsyncSearch:
         self,
         q: str,
         *,
-        product: Optional[SearchProduct] = None,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        product: SearchProduct | None = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request("GET", "/search", params=_params(q, product, count, cursor))
 
@@ -73,10 +74,10 @@ class AsyncSearch:
         self,
         q: str,
         *,
-        product: Optional[SearchProduct] = None,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        product: SearchProduct | None = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self(q, product=product, count=count, cursor=cur),

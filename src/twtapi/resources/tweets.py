@@ -10,14 +10,15 @@ Per the public spec:
 
 from __future__ import annotations
 
-from typing import Any, AsyncIterator, Iterator, Optional
+from collections.abc import AsyncIterator, Iterator
+from typing import Any
 
 from twtapi._async_transport import AsyncTransport
 from twtapi._transport import Transport
 from twtapi.pagination import aiter_items, iter_items
 
 
-def _attach_media(payload: dict[str, Any], media_id: Optional[str], media_ids: Optional[list[str]]) -> None:
+def _attach_media(payload: dict[str, Any], media_id: str | None, media_ids: list[str] | None) -> None:
     if media_id is not None:
         payload["media_id"] = media_id
     if media_ids:
@@ -36,8 +37,8 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """Users that retweeted a tweet. `GET /retweets`
 
@@ -53,9 +54,9 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         return iter_items(
             lambda cur: self.retweets(tweet_id, count=count, cursor=cur),
@@ -68,8 +69,8 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """Quote-tweets of a given tweet. `GET /quotes`"""
         return self._t.request(
@@ -82,9 +83,9 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         return iter_items(
             lambda cur: self.quotes(tweet_id, count=count, cursor=cur),
@@ -97,7 +98,7 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """Replies (full content) to a tweet. `GET /comments`"""
         return self._t.request(
@@ -110,8 +111,8 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         return iter_items(
             lambda cur: self.comments(tweet_id, cursor=cur),
@@ -124,7 +125,7 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         """Just the IDs of replies to a tweet (cheaper than `comments`).
         `GET /reply_ids`"""
@@ -138,8 +139,8 @@ class Tweets:
         self,
         tweet_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> Iterator[str]:
         return iter_items(
             lambda cur: self.reply_ids(tweet_id, cursor=cur),
@@ -154,10 +155,10 @@ class Tweets:
         self,
         text: str,
         *,
-        in_reply_to: Optional[str] = None,
-        attachment_url: Optional[str] = None,
-        media_id: Optional[str] = None,
-        media_ids: Optional[list[str]] = None,
+        in_reply_to: str | None = None,
+        attachment_url: str | None = None,
+        media_id: str | None = None,
+        media_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Post a new tweet. Requires engagement cookies. `POST /tweet`
 
@@ -178,8 +179,8 @@ class Tweets:
         tweet_id: str,
         text: str,
         *,
-        media_id: Optional[str] = None,
-        media_ids: Optional[list[str]] = None,
+        media_id: str | None = None,
+        media_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Reply to a tweet. `POST /comment`"""
         payload: dict[str, Any] = {"tweet_id": tweet_id, "text": text}
@@ -211,8 +212,8 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -224,9 +225,9 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self.retweets(tweet_id, count=count, cursor=cur),
@@ -239,8 +240,8 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        cursor: Optional[str] = None,
+        count: int | None = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -252,9 +253,9 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        count: Optional[int] = None,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        count: int | None = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self.quotes(tweet_id, count=count, cursor=cur),
@@ -267,7 +268,7 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -279,8 +280,8 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
         return aiter_items(
             lambda cur: self.comments(tweet_id, cursor=cur),
@@ -293,7 +294,7 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
     ) -> dict[str, Any]:
         return await self._t.request(
             "GET",
@@ -305,8 +306,8 @@ class AsyncTweets:
         self,
         tweet_id: str,
         *,
-        max_pages: Optional[int] = None,
-        max_items: Optional[int] = None,
+        max_pages: int | None = None,
+        max_items: int | None = None,
     ) -> AsyncIterator[str]:
         return aiter_items(
             lambda cur: self.reply_ids(tweet_id, cursor=cur),
@@ -319,10 +320,10 @@ class AsyncTweets:
         self,
         text: str,
         *,
-        in_reply_to: Optional[str] = None,
-        attachment_url: Optional[str] = None,
-        media_id: Optional[str] = None,
-        media_ids: Optional[list[str]] = None,
+        in_reply_to: str | None = None,
+        attachment_url: str | None = None,
+        media_id: str | None = None,
+        media_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"text": text}
         if in_reply_to is not None:
@@ -337,8 +338,8 @@ class AsyncTweets:
         tweet_id: str,
         text: str,
         *,
-        media_id: Optional[str] = None,
-        media_ids: Optional[list[str]] = None,
+        media_id: str | None = None,
+        media_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"tweet_id": tweet_id, "text": text}
         _attach_media(payload, media_id, media_ids)

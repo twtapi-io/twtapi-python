@@ -10,7 +10,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import Any, Mapping, Optional
+from collections.abc import Mapping
+from typing import Any
 
 import httpx
 
@@ -42,13 +43,13 @@ class AsyncTransport:
         *,
         api_key: str,
         base_url: str = DEFAULT_BASE_URL,
-        proxy: Optional[str] = None,
+        proxy: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         retries: int = 2,
-        cookies: Optional[CookieState] = None,
-        logger: Optional[logging.Logger] = None,
+        cookies: CookieState | None = None,
+        logger: logging.Logger | None = None,
         user_agent: str = DEFAULT_USER_AGENT,
-        http_client: Optional[httpx.AsyncClient] = None,
+        http_client: httpx.AsyncClient | None = None,
     ) -> None:
         if not api_key:
             raise ValueError("api_key is required")
@@ -60,7 +61,7 @@ class AsyncTransport:
         self._cookies = cookies or CookieState()
         self._logger = logger
         self._user_agent = user_agent
-        self._last_rate_limit: Optional[RateLimit] = None
+        self._last_rate_limit: RateLimit | None = None
 
         self._owns_client = http_client is None
         self._client = http_client or httpx.AsyncClient(
@@ -78,7 +79,7 @@ class AsyncTransport:
         return self._base_url
 
     @property
-    def last_rate_limit(self) -> Optional[RateLimit]:
+    def last_rate_limit(self) -> RateLimit | None:
         return self._last_rate_limit
 
     async def request(
@@ -86,12 +87,12 @@ class AsyncTransport:
         method: str,
         path: str,
         *,
-        params: Optional[Mapping[str, Any]] = None,
+        params: Mapping[str, Any] | None = None,
         json: JSONBody = None,
-        data: Optional[Mapping[str, Any]] = None,
-        files: Optional[Mapping[str, Any]] = None,
+        data: Mapping[str, Any] | None = None,
+        files: Mapping[str, Any] | None = None,
         send_cookies: bool = False,
-        extra_headers: Optional[Mapping[str, str]] = None,
+        extra_headers: Mapping[str, str] | None = None,
     ) -> dict[str, Any]:
         url = self._build_url(path)
         headers = self._build_headers(send_cookies=send_cookies, extra=extra_headers)
@@ -151,7 +152,7 @@ class AsyncTransport:
         self,
         *,
         send_cookies: bool,
-        extra: Optional[Mapping[str, str]],
+        extra: Mapping[str, str] | None,
     ) -> dict[str, str]:
         headers: dict[str, str] = {"X-API-Key": self._api_key}
         if self._proxy:
